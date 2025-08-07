@@ -254,9 +254,30 @@ ma è il nostro StreamBlur Pro che funziona dietro le quinte!"""
         if self.performance_var:
             performance_mode = self.performance_var.get()
             self.config.set('ai.performance_mode', performance_mode)
-            # Mostra messaggio che serve restart
-            messagebox.showinfo("Performance Mode", 
-                                 "Performance Mode aggiornato! Riavvia StreamBlur per applicare le modifiche.")
+            
+            # Cambio dinamico del modello AI senza riavvio
+            if hasattr(self.app, 'ai_processor') and self.app.ai_processor:
+                try:
+                    # Cambia modello immediatamente
+                    self.app.ai_processor.switch_model(performance_mode)
+                    
+                    # Mostra feedback all'utente
+                    mode_text = "Performance (Veloce)" if performance_mode else "Accurato (Preciso)"
+                    if hasattr(self, 'status_label') and self.status_label:
+                        current_status = self.status_label.cget('text')
+                        if "🟢" in current_status:
+                            self.status_label.config(text=f"🟢 Attivo - Modello: {mode_text}")
+                    
+                    print(f"🔄 Modello AI cambiato: {mode_text}")
+                    
+                except Exception as e:
+                    print(f"⚠️ Errore cambio modello: {e}")
+                    messagebox.showwarning("Cambio Modello", 
+                                         "Errore durante il cambio modello. Riavvia StreamBlur se necessario.")
+            else:
+                # Se l'app non è ancora avviata, il cambio sarà applicato al prossimo avvio
+                mode_text = "Performance (Veloce)" if performance_mode else "Accurato (Preciso)"
+                print(f"⚙️ Modello impostato per il prossimo avvio: {mode_text}")
     
     def _load_settings_from_config(self):
         """Carica impostazioni dalla configurazione"""

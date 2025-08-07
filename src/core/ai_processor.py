@@ -220,3 +220,49 @@ class AIProcessor:
         
         self.mask_buffer.clear()
         print("✅ AI cleanup completato")
+    
+    def switch_model(self, performance_mode: bool):
+        """Cambia modello AI dinamicamente senza riavvio"""
+        try:
+            old_performance_mode = self.config.get('ai.performance_mode', False)
+            
+            if old_performance_mode == performance_mode:
+                return True  # Nessun cambio necessario
+            
+            print(f"🔄 Cambio modello AI: {'Performance' if performance_mode else 'Accurato'}...")
+            
+            # Aggiorna configurazione
+            self.config.set('ai.performance_mode', performance_mode)
+            
+            # Determina nuovo modello
+            new_model_selection = 0 if performance_mode else 1
+            
+            # Se il modello è già quello giusto, non fare nulla
+            if self.model_selection == new_model_selection:
+                return True
+            
+            # Chiudi il vecchio segmentatore
+            if self.segmentation:
+                self.segmentation.close()
+                self.segmentation = None
+            
+            # Crea nuovo segmentatore con nuovo modello
+            self.model_selection = new_model_selection
+            
+            if self.mp_selfie_segmentation:
+                self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(
+                    model_selection=self.model_selection
+                )
+                
+                # Pulisci buffer per evitare inconsistenze
+                self.mask_buffer.clear()
+                
+                print(f"✅ Modello cambiato con successo: {self.model_selection} ({'Performance' if performance_mode else 'Accurato'})")
+                return True
+            
+            print("❌ Errore durante il cambio modello: mp_selfie_segmentation non disponibile")
+            return False
+            
+        except Exception as e:
+            print(f"❌ Errore switch_model: {e}")
+            return False
