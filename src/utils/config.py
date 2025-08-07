@@ -32,6 +32,10 @@ class StreamBlurConfig:
                 "temporal_smoothing": True,
                 "noise_reduction": False
             },
+            "ai": {
+                "performance_mode": True,  # True=veloce, False=accurato
+                "fast_inference": True
+            },
             "performance": {
                 "buffer_size": 2,
                 "temporal_buffer_size": 2,

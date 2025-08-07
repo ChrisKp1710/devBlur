@@ -26,7 +26,9 @@ class AIProcessor:
         ai_height = config.get('video.ai_height', 288) 
         self.ai_height = ai_height if isinstance(ai_height, int) else 288
         
-        self.model_selection = 1  # 0=veloce, 1=accurato
+        # Modello configurabile: 0=veloce (performance), 1=accurato (qualità)
+        performance_mode = config.get('ai.performance_mode', True)
+        self.model_selection = 0 if performance_mode else 1
         
         # Feature toggles
         self.edge_smoothing = config.get('effects.edge_smoothing', True)

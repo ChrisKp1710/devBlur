@@ -21,25 +21,29 @@ class EffectsProcessor:
         self.noise_reduction = noise_reduction if isinstance(noise_reduction, bool) else False
         
     def apply_background_blur(self, frame: np.ndarray, mask: np.ndarray) -> np.ndarray:
-        """Applica blur professionale allo sfondo"""
+        """Applica blur professionale allo sfondo - versione ottimizzata"""
         
         # Normalizza mask (0-1 range)
         mask_normalized = mask.astype(np.float32) / 255.0
         
-        # Calcola kernel size (sempre dispari)
-        kernel_size = max(3, self.blur_intensity * 2 + 1)
+        # Calcola kernel size ottimizzato per performance
+        # Riduciamo la formula per blur più leggero
+        kernel_size = max(3, int(self.blur_intensity * 1.5) + 1)
         if kernel_size % 2 == 0:
             kernel_size += 1
         
-        # Blur dello sfondo
-        blurred_bg = cv2.GaussianBlur(frame, (kernel_size, kernel_size), 0)
-        
-        # Effetto bokeh per blur intensi
-        if self.blur_intensity > 20:
-            kernel_size_bokeh = min(kernel_size, 15)
-            if kernel_size_bokeh % 2 == 0:
-                kernel_size_bokeh += 1
-            blurred_bg = cv2.medianBlur(blurred_bg, kernel_size_bokeh)
+        # Blur più efficiente - un solo passaggio per blur leggeri
+        if self.blur_intensity <= 15:
+            # Blur leggero - un passaggio
+            blurred_bg = cv2.GaussianBlur(frame, (kernel_size, kernel_size), 0)
+        else:
+            # Blur intenso - doppio passaggio per qualità migliore
+            blurred_bg = cv2.GaussianBlur(frame, (kernel_size, kernel_size), 0)
+            if self.blur_intensity > 20:
+                kernel_size_bokeh = min(kernel_size, 13)  # Riduciamo da 15 a 13
+                if kernel_size_bokeh % 2 == 0:
+                    kernel_size_bokeh += 1
+                blurred_bg = cv2.medianBlur(blurred_bg, kernel_size_bokeh)
         
         # Mask a 3 canali con blur per transizioni smooth
         mask_3ch = np.stack([mask_normalized] * 3, axis=-1)

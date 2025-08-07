@@ -194,8 +194,12 @@ class StreamBlurProApp:
         self.preview_enabled = not self.preview_enabled
         
         if not self.preview_enabled:
-            import cv2
-            cv2.destroyWindow('StreamBlur Pro - Preview')
+            try:
+                import cv2
+                cv2.destroyWindow('StreamBlur Pro - Preview')
+            except Exception:
+                # Finestra già chiusa o non esistente
+                pass
     
     # Settings methods per GUI
     def set_blur_intensity(self, intensity: int):

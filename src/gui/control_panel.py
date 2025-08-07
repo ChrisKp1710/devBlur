@@ -27,6 +27,7 @@ class StreamBlurControlPanel:
         self.edge_var: Optional[tk.BooleanVar] = None
         self.temporal_var: Optional[tk.BooleanVar] = None
         self.noise_var: Optional[tk.BooleanVar] = None
+        self.performance_var: Optional[tk.BooleanVar] = None
         
         # Status labels
         self.status_label = None
@@ -43,11 +44,12 @@ class StreamBlurControlPanel:
         self.edge_var = tk.BooleanVar(value=self.config.get('effects.edge_smoothing', True))
         self.temporal_var = tk.BooleanVar(value=self.config.get('effects.temporal_smoothing', True))
         self.noise_var = tk.BooleanVar(value=self.config.get('effects.noise_reduction', False))
+        self.performance_var = tk.BooleanVar(value=self.config.get('ai.performance_mode', True))
         
         width = self.config.get('gui.window_width', 550)
         height = self.config.get('gui.window_height', 500)
         self.root.geometry(f"{width}x{height}")
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)  # Finestra ridimensionabile
         
         # Tema
         style = ttk.Style()
@@ -143,6 +145,7 @@ class StreamBlurControlPanel:
         assert self.edge_var is not None  
         assert self.temporal_var is not None
         assert self.noise_var is not None
+        assert self.performance_var is not None
         
         self.blur_scale = ttk.Scale(blur_frame, from_=1, to=25, 
                                    variable=self.blur_var, orient=tk.HORIZONTAL,
@@ -164,6 +167,11 @@ class StreamBlurControlPanel:
         self.noise_check = ttk.Checkbutton(settings_frame, text="🔧 Noise Reduction (Rallenta performance)",
                                           variable=self.noise_var, command=self.on_noise_toggle)
         self.noise_check.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
+        
+        # Performance Mode
+        self.performance_check = ttk.Checkbutton(settings_frame, text="⚡ Performance Mode (Veloce ma meno accurato)",
+                                                variable=self.performance_var, command=self.on_performance_toggle)
+        self.performance_check.grid(row=4, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
         
     def _create_performance_section(self, parent):
         """Crea sezione performance"""
@@ -241,6 +249,15 @@ ma è il nostro StreamBlur Pro che funziona dietro le quinte!"""
         if self.noise_var:
             self.app.set_noise_reduction(self.noise_var.get())
     
+    def on_performance_toggle(self):
+        """Callback toggle performance mode"""
+        if self.performance_var:
+            performance_mode = self.performance_var.get()
+            self.config.set('ai.performance_mode', performance_mode)
+            # Mostra messaggio che serve restart
+            messagebox.showinfo("Performance Mode", 
+                                 "Performance Mode aggiornato! Riavvia StreamBlur per applicare le modifiche.")
+    
     def _load_settings_from_config(self):
         """Carica impostazioni dalla configurazione"""
         if self.blur_var:
@@ -251,6 +268,8 @@ ma è il nostro StreamBlur Pro che funziona dietro le quinte!"""
             self.temporal_var.set(self.config.get('effects.temporal_smoothing', True))
         if self.noise_var:
             self.noise_var.set(self.config.get('effects.noise_reduction', False))
+        if self.performance_var:
+            self.performance_var.set(self.config.get('ai.performance_mode', True))
     
     def _start_update_loop(self):
         """Avvia loop aggiornamento GUI"""
