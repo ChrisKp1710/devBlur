@@ -49,7 +49,7 @@ class StreamBlurControlPanel:
         
         # Main container
         main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        main_frame.grid(row=0, column=0, sticky="nsew")
         
         self._create_header(main_frame)
         self._create_status_section(main_frame)
@@ -78,7 +78,7 @@ class StreamBlurControlPanel:
     def _create_status_section(self, parent):
         """Crea sezione status"""
         status_frame = ttk.LabelFrame(parent, text="📊 Status Sistema", padding="15")
-        status_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        status_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(0, 15))
         
         # Status principale
         self.status_label = ttk.Label(status_frame, text="🔴 Inattivo", 
@@ -96,7 +96,7 @@ class StreamBlurControlPanel:
     def _create_control_section(self, parent):
         """Crea sezione controlli"""
         control_frame = ttk.LabelFrame(parent, text="🎮 Controlli", padding="15")
-        control_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        control_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(0, 15))
         
         # Pulsanti principali
         button_frame = ttk.Frame(control_frame)
@@ -124,11 +124,11 @@ class StreamBlurControlPanel:
     def _create_settings_section(self, parent):
         """Crea sezione impostazioni"""
         settings_frame = ttk.LabelFrame(parent, text="⚙️ Impostazioni Effetti", padding="15")
-        settings_frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        settings_frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=(0, 15))
         
         # Blur intensity
         blur_frame = ttk.Frame(settings_frame)
-        blur_frame.grid(row=0, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
+        blur_frame.grid(row=0, column=0, columnspan=3, sticky="ew", pady=(0, 10))
         
         ttk.Label(blur_frame, text="🌪️ Intensità Blur:").grid(row=0, column=0, sticky=tk.W)
         
@@ -156,7 +156,7 @@ class StreamBlurControlPanel:
     def _create_performance_section(self, parent):
         """Crea sezione performance"""
         perf_frame = ttk.LabelFrame(parent, text="📈 Performance Monitor", padding="10")
-        perf_frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        perf_frame.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(0, 15))
         
         # Performance info (sarà aggiornato dinamicamente)
         self.perf_info = ttk.Label(perf_frame, text="Avvia StreamBlur per vedere le statistiche",
@@ -166,7 +166,7 @@ class StreamBlurControlPanel:
     def _create_info_section(self, parent):
         """Crea sezione informazioni"""
         info_frame = ttk.LabelFrame(parent, text="📖 Istruzioni", padding="10")
-        info_frame.grid(row=6, column=0, columnspan=2, sticky=(tk.W, tk.E))
+        info_frame.grid(row=6, column=0, columnspan=2, sticky="ew")
         
         instructions = """🚀 Quick Start:
 1. Clicca 'Avvia StreamBlur Pro'
@@ -249,28 +249,34 @@ ma è il nostro StreamBlur Pro che funziona dietro le quinte!"""
                 
                 # Aggiorna status
                 if stats['is_processing']:
-                    self.status_label.config(text="🟢 Attivo - Virtual Camera ON", foreground='green')
+                    if hasattr(self, 'status_label') and self.status_label:
+                        self.status_label.config(text="🟢 Attivo - Virtual Camera ON", foreground='green')
                 else:
-                    self.status_label.config(text="🔴 Inattivo", foreground='red')
+                    if hasattr(self, 'status_label') and self.status_label:
+                        self.status_label.config(text="🔴 Inattivo", foreground='red')
                 
                 # Aggiorna FPS
                 fps = stats.get('fps', 0.0)
                 fps_color = 'green' if fps >= 25 else 'orange' if fps >= 20 else 'red'
-                self.fps_label.config(text=f"FPS: {fps:.1f}", foreground=fps_color)
+                if hasattr(self, 'fps_label') and self.fps_label:
+                    self.fps_label.config(text=f"FPS: {fps:.1f}", foreground=fps_color)
                 
                 # Aggiorna performance grade
                 grade = stats.get('performance_grade', 'N/A')
-                self.performance_label.config(text=f"Performance: {grade}")
+                if hasattr(self, 'performance_label') and self.performance_label:
+                    self.performance_label.config(text=f"Performance: {grade}")
                 
                 # Aggiorna performance monitor
                 perf_text = self._format_performance_info(stats)
-                self.perf_info.config(text=perf_text)
+                if hasattr(self, 'perf_info') and self.perf_info:
+                    self.perf_info.config(text=perf_text)
             
         except Exception as e:
             print(f"⚠️ Errore update GUI: {e}")
         
         # Schedule prossimo update
-        self.root.after(1000, self._update_status)
+        if self.root:
+            self.root.after(1000, self._update_status)
     
     def _format_performance_info(self, stats):
         """Formatta informazioni performance"""
@@ -288,11 +294,13 @@ Frames Sent: {stats.get('frames_sent', 0)}  |  Dropped: {stats.get('frames_dropp
     def run(self):
         """Avvia GUI"""
         self.create_gui()
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.root.mainloop()
+        if self.root:
+            self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+            self.root.mainloop()
     
     def on_closing(self):
         """Callback chiusura finestra"""
         self.is_running = False
         self.app.cleanup()
-        self.root.destroy()
+        if self.root:
+            self.root.destroy()

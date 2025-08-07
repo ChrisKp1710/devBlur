@@ -13,9 +13,12 @@ class EffectsProcessor:
     def __init__(self, config: StreamBlurConfig):
         self.config = config
         
-        # Configurazione effetti
-        self.blur_intensity = config.get('effects.blur_intensity', 15)
-        self.noise_reduction = config.get('effects.noise_reduction', False)
+        # Configurazione effetti con conversione sicura
+        blur_intensity = config.get('effects.blur_intensity', 15)
+        self.blur_intensity = blur_intensity if isinstance(blur_intensity, int) else 15
+        
+        noise_reduction = config.get('effects.noise_reduction', False)
+        self.noise_reduction = noise_reduction if isinstance(noise_reduction, bool) else False
         
     def apply_background_blur(self, frame: np.ndarray, mask: np.ndarray) -> np.ndarray:
         """Applica blur professionale allo sfondo"""

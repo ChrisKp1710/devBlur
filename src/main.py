@@ -277,11 +277,13 @@ class StreamBlurProApp:
                     break
                 elif cmd == '+':
                     current = self.effects.blur_intensity
-                    self.set_blur_intensity(min(25, current + 2))
+                    current_value = current if isinstance(current, int) else 15
+                    self.set_blur_intensity(min(25, current_value + 2))
                     print(f"🔵 Blur: {self.effects.blur_intensity}")
                 elif cmd == '-':
-                    current = self.effects.blur_intensity
-                    self.set_blur_intensity(max(1, current - 2))
+                    current = self.effects.blur_intensity  
+                    current_value = current if isinstance(current, int) else 15
+                    self.set_blur_intensity(max(1, current_value - 2))
                     print(f"🔵 Blur: {self.effects.blur_intensity}")
                 elif cmd == 'e':
                     current = self.ai_processor.edge_smoothing

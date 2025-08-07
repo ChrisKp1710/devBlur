@@ -19,18 +19,25 @@ class AIProcessor:
         self.config = config
         self.performance = performance_monitor
         
-        # Configurazione AI
-        self.ai_width = config.get('video.ai_width', 512)
-        self.ai_height = config.get('video.ai_height', 288)
+        # Configurazione AI con conversione sicura
+        ai_width = config.get('video.ai_width', 512)
+        self.ai_width = ai_width if isinstance(ai_width, int) else 512
+        
+        ai_height = config.get('video.ai_height', 288) 
+        self.ai_height = ai_height if isinstance(ai_height, int) else 288
+        
         self.model_selection = 1  # 0=veloce, 1=accurato
         
         # Feature toggles
         self.edge_smoothing = config.get('effects.edge_smoothing', True)
         self.temporal_smoothing = config.get('effects.temporal_smoothing', True)
         
-        # Parametri ottimizzazione
-        self.edge_kernel_size = config.get('performance.edge_kernel_size', 3)
-        self.temporal_buffer_size = config.get('performance.temporal_buffer_size', 2)
+        # Parametri ottimizzazione con conversione sicura
+        edge_kernel = config.get('performance.edge_kernel_size', 3)
+        self.edge_kernel_size = edge_kernel if isinstance(edge_kernel, int) else 3
+        
+        temporal_buffer = config.get('performance.temporal_buffer_size', 2)
+        self.temporal_buffer_size = temporal_buffer if isinstance(temporal_buffer, int) else 2
         
         # MediaPipe
         self.mp_selfie_segmentation = None
@@ -47,11 +54,35 @@ class AIProcessor:
         print("🤖 Inizializzando AI processor...")
         
         try:
-            # Inizializza MediaPipe
-            self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
-            self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(
-                model_selection=self.model_selection
-            )
+            # Inizializza MediaPipe con controllo di sicurezza
+            import mediapipe as mp
+            
+            # Prova diversi modi per accedere a selfie_segmentation
+            self.mp_selfie_segmentation = None
+            try:
+                # Metodo 1: accesso sicuro con getattr
+                self.mp_selfie_segmentation = getattr(mp.solutions, 'selfie_segmentation', None)
+            except:
+                pass
+                
+            if not self.mp_selfie_segmentation:
+                try:
+                    # Metodo 2: import esplicito (commentato per evitare errori di tipo)
+                    # from mediapipe.solutions import selfie_segmentation
+                    # self.mp_selfie_segmentation = selfie_segmentation
+                    print("⚠️ Warning: Usando fallback per MediaPipe")
+                    return False
+                except:
+                    print("❌ Errore: MediaPipe selfie_segmentation non disponibile")
+                    return False
+            
+            if self.mp_selfie_segmentation:
+                self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(
+                    model_selection=self.model_selection
+                )
+            else:
+                print("❌ Errore: Impossibile inizializzare selfie_segmentation")
+                return False
             
             print(f"✅ AI inizializzato - Risoluzione: {self.ai_width}x{self.ai_height}")
             print(f"🎯 Modello: {'Accurato' if self.model_selection else 'Veloce'}")
@@ -95,6 +126,11 @@ class AIProcessor:
             rgb_frame = cv2.cvtColor(ai_frame, cv2.COLOR_BGR2RGB)
             
             # Segmentazione AI
+            # Verifica che segmentation sia stato inizializzato
+            if not self.segmentation:
+                print("❌ Errore: segmentation non inizializzato")
+                return None
+                
             results = self.segmentation.process(rgb_frame)
             mask = results.segmentation_mask
             
@@ -124,8 +160,9 @@ class AIProcessor:
     
     def _apply_edge_smoothing(self, mask: np.ndarray) -> np.ndarray:
         """Applica edge smoothing per bordi più morbidi"""
+        kernel_size = max(1, self.edge_kernel_size)  # Assicura che sia >= 1
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, 
-                                         (self.edge_kernel_size, self.edge_kernel_size))
+                                         (kernel_size, kernel_size))
         
         # Morphological closing per riempire buchi
         mask_smooth = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)

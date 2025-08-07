@@ -20,12 +20,19 @@ class VirtualCameraManager:
         self.config = config
         self.performance = performance_monitor
         
-        # Configurazione
-        self.width = config.get('video.camera_width', 1280)
-        self.height = config.get('video.camera_height', 720)
-        self.fps = config.get('video.fps', 30)
+        # Configurazione con conversione sicura
+        width = config.get('video.camera_width', 1280)
+        self.width = width if isinstance(width, int) else 1280
+        
+        height = config.get('video.camera_height', 720)
+        self.height = height if isinstance(height, int) else 720
+        
+        fps = config.get('video.fps', 30)
+        self.fps = fps if isinstance(fps, (int, float)) else 30
+        
+        format_name = config.get('virtual_camera.format', 'BGR')
         self.format = getattr(pyvirtualcam.PixelFormat, 
-                            config.get('virtual_camera.format', 'BGR'))
+                            format_name if isinstance(format_name, str) else 'BGR')
         
         # Virtual Camera
         self.virtual_cam: Optional[pyvirtualcam.Camera] = None
@@ -47,9 +54,9 @@ class VirtualCameraManager:
         
         try:
             self.virtual_cam = pyvirtualcam.Camera(
-                width=self.width,
-                height=self.height,
-                fps=self.fps,
+                width=int(self.width),
+                height=int(self.height),
+                fps=float(self.fps),
                 fmt=self.format
             )
             
@@ -98,8 +105,9 @@ class VirtualCameraManager:
         
         try:
             # Ridimensiona se necessario
-            if frame.shape[:2] != (self.height, self.width):
-                frame = cv2.resize(frame, (self.width, self.height))
+            target_size = (int(self.height), int(self.width))
+            if frame.shape[:2] != target_size:
+                frame = cv2.resize(frame, (int(self.width), int(self.height)))
             
             # Aggiungi alla queue
             if not self.frame_queue.full():

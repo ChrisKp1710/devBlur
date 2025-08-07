@@ -19,11 +19,18 @@ class CameraManager:
         self.config = config
         self.performance = performance_monitor
         
-        # Configurazione camera
-        self.width = config.get('video.camera_width', 1280)
-        self.height = config.get('video.camera_height', 720)
-        self.fps = config.get('video.fps', 30)
-        self.buffer_size = config.get('performance.buffer_size', 2)
+        # Configurazione camera con conversione sicura
+        width = config.get('video.camera_width', 1280)
+        self.width = width if isinstance(width, int) else 1280
+        
+        height = config.get('video.camera_height', 720)
+        self.height = height if isinstance(height, int) else 720
+        
+        fps = config.get('video.fps', 30)
+        self.fps = fps if isinstance(fps, (int, float)) else 30
+        
+        buffer_size = config.get('performance.buffer_size', 2)
+        self.buffer_size = buffer_size if isinstance(buffer_size, int) else 2
         
         # Camera
         self.cap: Optional[cv2.VideoCapture] = None
@@ -50,9 +57,9 @@ class CameraManager:
                 return False
             
             # Configurazione camera
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-            self.cap.set(cv2.CAP_PROP_FPS, self.fps)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, float(self.width))
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, float(self.height))
+            self.cap.set(cv2.CAP_PROP_FPS, float(self.fps))
             self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Riduce latenza
             
             # Ottimizzazioni per qualità AI
