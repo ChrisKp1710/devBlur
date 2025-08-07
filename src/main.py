@@ -20,13 +20,13 @@ from typing import Optional
 # Aggiungi src al path per import relativi
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from utils.config import StreamBlurConfig
-from utils.performance import PerformanceMonitor
-from core.camera import CameraManager
-from core.ai_processor import AIProcessor
-from core.effects import EffectsProcessor
-from core.virtual_camera import VirtualCameraManager
-from gui.control_panel import StreamBlurControlPanel
+from .utils.config import StreamBlurConfig
+from .utils.performance import PerformanceMonitor
+from .core.camera import CameraManager
+from .core.ai_processor import AIProcessor
+from .core.effects import EffectsProcessor
+from .core.virtual_camera import VirtualCameraManager
+from .gui.control_panel import StreamBlurControlPanel
 
 class StreamBlurProApp:
     """Applicazione principale StreamBlur Pro"""

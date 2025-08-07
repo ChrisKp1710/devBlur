@@ -22,11 +22,11 @@ class StreamBlurControlPanel:
         self.root: Optional[tk.Tk] = None
         self.is_running = False
         
-        # Variables per GUI
-        self.blur_var = tk.IntVar(value=self.config.get('effects.blur_intensity', 15))
-        self.edge_var = tk.BooleanVar(value=self.config.get('effects.edge_smoothing', True))
-        self.temporal_var = tk.BooleanVar(value=self.config.get('effects.temporal_smoothing', True))
-        self.noise_var = tk.BooleanVar(value=self.config.get('effects.noise_reduction', False))
+        # Variables per GUI (saranno inizializzate in create_gui)
+        self.blur_var: Optional[tk.IntVar] = None
+        self.edge_var: Optional[tk.BooleanVar] = None
+        self.temporal_var: Optional[tk.BooleanVar] = None
+        self.noise_var: Optional[tk.BooleanVar] = None
         
         # Status labels
         self.status_label = None
@@ -37,6 +37,12 @@ class StreamBlurControlPanel:
         """Crea interfaccia grafica"""
         self.root = tk.Tk()
         self.root.title("🎥 StreamBlur Pro v4.0 - Modular Edition")
+        
+        # Ora che abbiamo root, creiamo le variabili Tkinter
+        self.blur_var = tk.IntVar(value=self.config.get('effects.blur_intensity', 15))
+        self.edge_var = tk.BooleanVar(value=self.config.get('effects.edge_smoothing', True))
+        self.temporal_var = tk.BooleanVar(value=self.config.get('effects.temporal_smoothing', True))
+        self.noise_var = tk.BooleanVar(value=self.config.get('effects.noise_reduction', False))
         
         width = self.config.get('gui.window_width', 550)
         height = self.config.get('gui.window_height', 500)
@@ -132,6 +138,12 @@ class StreamBlurControlPanel:
         
         ttk.Label(blur_frame, text="🌪️ Intensità Blur:").grid(row=0, column=0, sticky=tk.W)
         
+        # Assert che le variabili sono già state create
+        assert self.blur_var is not None
+        assert self.edge_var is not None  
+        assert self.temporal_var is not None
+        assert self.noise_var is not None
+        
         self.blur_scale = ttk.Scale(blur_frame, from_=1, to=25, 
                                    variable=self.blur_var, orient=tk.HORIZONTAL,
                                    command=self.on_blur_change, length=200)
@@ -216,22 +228,29 @@ ma è il nostro StreamBlur Pro che funziona dietro le quinte!"""
     
     def on_edge_toggle(self):
         """Callback toggle edge smoothing"""
-        self.app.set_edge_smoothing(self.edge_var.get())
+        if self.edge_var:
+            self.app.set_edge_smoothing(self.edge_var.get())
     
     def on_temporal_toggle(self):
         """Callback toggle temporal smoothing"""
-        self.app.set_temporal_smoothing(self.temporal_var.get())
+        if self.temporal_var:
+            self.app.set_temporal_smoothing(self.temporal_var.get())
     
     def on_noise_toggle(self):
         """Callback toggle noise reduction"""
-        self.app.set_noise_reduction(self.noise_var.get())
+        if self.noise_var:
+            self.app.set_noise_reduction(self.noise_var.get())
     
     def _load_settings_from_config(self):
         """Carica impostazioni dalla configurazione"""
-        self.blur_var.set(self.config.get('effects.blur_intensity', 15))
-        self.edge_var.set(self.config.get('effects.edge_smoothing', True))
-        self.temporal_var.set(self.config.get('effects.temporal_smoothing', True))
-        self.noise_var.set(self.config.get('effects.noise_reduction', False))
+        if self.blur_var:
+            self.blur_var.set(self.config.get('effects.blur_intensity', 15))
+        if self.edge_var:
+            self.edge_var.set(self.config.get('effects.edge_smoothing', True))
+        if self.temporal_var:
+            self.temporal_var.set(self.config.get('effects.temporal_smoothing', True))
+        if self.noise_var:
+            self.noise_var.set(self.config.get('effects.noise_reduction', False))
     
     def _start_update_loop(self):
         """Avvia loop aggiornamento GUI"""

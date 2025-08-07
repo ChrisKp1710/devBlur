@@ -44,8 +44,7 @@ setup(
     install_requires=read_requirements(),
     entry_points={
         'console_scripts': [
-            'streamblur-pro=main:main',
-            'streamblur-cli=main:main --cli',
+            'streamblur-pro=src.main:main',
         ],
     },
     include_package_data=True,
