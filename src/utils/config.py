@@ -33,8 +33,14 @@ class StreamBlurConfig:
                 "noise_reduction": False
             },
             "ai": {
-                "performance_mode": True,  # True=veloce, False=accurato
-                "fast_inference": True
+                "performance_mode": False,  # False=accurato per scontorno preciso
+                "fast_inference": True,
+                "model_quality": "accurate"  # accurate/fast
+            },
+            "blur": {
+                "algorithm": "optimized",  # optimized/quality
+                "intensity_multiplier": 1.8,  # Per blur più intenso
+                "use_gpu_acceleration": True
             },
             "performance": {
                 "buffer_size": 2,

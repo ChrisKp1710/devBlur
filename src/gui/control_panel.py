@@ -44,7 +44,7 @@ class StreamBlurControlPanel:
         self.edge_var = tk.BooleanVar(value=self.config.get('effects.edge_smoothing', True))
         self.temporal_var = tk.BooleanVar(value=self.config.get('effects.temporal_smoothing', True))
         self.noise_var = tk.BooleanVar(value=self.config.get('effects.noise_reduction', False))
-        self.performance_var = tk.BooleanVar(value=self.config.get('ai.performance_mode', True))
+        self.performance_var = tk.BooleanVar(value=self.config.get('ai.performance_mode', False))
         
         width = self.config.get('gui.window_width', 550)
         height = self.config.get('gui.window_height', 500)
@@ -169,7 +169,7 @@ class StreamBlurControlPanel:
         self.noise_check.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
         
         # Performance Mode
-        self.performance_check = ttk.Checkbutton(settings_frame, text="⚡ Performance Mode (Veloce ma meno accurato)",
+        self.performance_check = ttk.Checkbutton(settings_frame, text="⚡ Performance Mode (Disattiva per scontorno preciso)",
                                                 variable=self.performance_var, command=self.on_performance_toggle)
         self.performance_check.grid(row=4, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
         
@@ -269,7 +269,7 @@ ma è il nostro StreamBlur Pro che funziona dietro le quinte!"""
         if self.noise_var:
             self.noise_var.set(self.config.get('effects.noise_reduction', False))
         if self.performance_var:
-            self.performance_var.set(self.config.get('ai.performance_mode', True))
+            self.performance_var.set(self.config.get('ai.performance_mode', False))
     
     def _start_update_loop(self):
         """Avvia loop aggiornamento GUI"""

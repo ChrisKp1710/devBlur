@@ -27,7 +27,8 @@ class AIProcessor:
         self.ai_height = ai_height if isinstance(ai_height, int) else 288
         
         # Modello configurabile: 0=veloce (performance), 1=accurato (qualità)
-        performance_mode = config.get('ai.performance_mode', True)
+        # Per scontorno preciso, usiamo modello accurato di default
+        performance_mode = config.get('ai.performance_mode', False)  # Default: accurato
         self.model_selection = 0 if performance_mode else 1
         
         # Feature toggles
