@@ -314,21 +314,22 @@ class StreamBlurControlPanel:
         self.blur_value_label.pack(side=tk.RIGHT)
         
         # Scale moderno
-        self.blur_scale = tk.Scale(blur_frame,
-                                  from_=1, to=25,
-                                  variable=self.blur_var,
-                                  orient=tk.HORIZONTAL,
-                                  command=self.on_blur_change,
-                                  bg=self.COLORS['bg_card'],
-                                  fg=self.COLORS['text'],
-                                  highlightthickness=0,
-                                  troughcolor=self.COLORS['bg_hover'],
-                                  activebackground=self.COLORS['blue'],
-                                  showvalue=False,
-                                  relief='flat',
-                                  borderwidth=0,
-                                  length=400)
-        self.blur_scale.pack(fill=tk.X)
+        if self.blur_var is not None:  # ✅ Controllo sicurezza
+            self.blur_scale = tk.Scale(blur_frame,
+                                      from_=1, to=25,
+                                      variable=self.blur_var,
+                                      orient=tk.HORIZONTAL,
+                                      command=self.on_blur_change,
+                                      bg=self.COLORS['bg_card'],
+                                      fg=self.COLORS['text'],
+                                      highlightthickness=0,
+                                      troughcolor=self.COLORS['bg_hover'],
+                                      activebackground=self.COLORS['blue'],
+                                      showvalue=False,
+                                      relief='flat',
+                                      borderwidth=0,
+                                      length=400)
+            self.blur_scale.pack(fill=tk.X)
         
         # Checkboxes moderne
         checkboxes = [
@@ -339,23 +340,24 @@ class StreamBlurControlPanel:
         ]
         
         for text, var, callback in checkboxes:
-            cb_frame = tk.Frame(settings_card, bg=self.COLORS['bg_card'])
-            cb_frame.pack(fill=tk.X, pady=(0, 6))
-            
-            checkbox = tk.Checkbutton(cb_frame,
-                                     text=text,
-                                     variable=var,
-                                     command=callback,
-                                     bg=self.COLORS['bg_card'],
-                                     fg=self.COLORS['text'],
-                                     font=self.fonts['body'],
-                                     selectcolor=self.COLORS['blue'],
-                                     activebackground=self.COLORS['bg_card'],
-                                     activeforeground=self.COLORS['text'],
-                                     borderwidth=0,
-                                     highlightthickness=0,
-                                     cursor='hand2')
-            checkbox.pack(side=tk.LEFT)
+            if var is not None:  # ✅ Controllo sicurezza per le variabili
+                cb_frame = tk.Frame(settings_card, bg=self.COLORS['bg_card'])
+                cb_frame.pack(fill=tk.X, pady=(0, 6))
+                
+                checkbox = tk.Checkbutton(cb_frame,
+                                         text=text,
+                                         variable=var,
+                                         command=callback,
+                                         bg=self.COLORS['bg_card'],
+                                         fg=self.COLORS['text'],
+                                         font=self.fonts['body'],
+                                         selectcolor=self.COLORS['blue'],
+                                         activebackground=self.COLORS['bg_card'],
+                                         activeforeground=self.COLORS['text'],
+                                         borderwidth=0,
+                                         highlightthickness=0,
+                                         cursor='hand2')
+                checkbox.pack(side=tk.LEFT)
         
     def _create_performance_section(self, parent):
         """Crea sezione performance MODERNA"""
