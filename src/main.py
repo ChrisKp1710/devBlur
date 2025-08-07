@@ -20,13 +20,37 @@ from typing import Optional
 # Aggiungi src al path per import relativi
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from .utils.config import StreamBlurConfig
-from .utils.performance import PerformanceMonitor
-from .core.camera import CameraManager
-from .core.ai_processor import AIProcessor
-from .core.effects import EffectsProcessor
-from .core.virtual_camera import VirtualCameraManager
-from .gui.control_panel import StreamBlurControlPanel
+# Import assoluti per funzionare con python src/main.py
+try:
+    # Prova import relativi (se eseguito come modulo)
+    from .utils.config import StreamBlurConfig
+    from .utils.performance import PerformanceMonitor
+    from .core.camera import CameraManager
+    from .core.ai_processor import AIProcessor
+    from .core.effects import EffectsProcessor
+    from .core.virtual_camera import VirtualCameraManager
+except ImportError:
+    # Fallback a import assoluti (se eseguito direttamente)
+    from utils.config import StreamBlurConfig
+    from utils.performance import PerformanceMonitor
+    from core.camera import CameraManager
+    from core.ai_processor import AIProcessor
+    from core.effects import EffectsProcessor
+    from core.virtual_camera import VirtualCameraManager
+
+# Scegli quale UI utilizzare
+USE_MODERN_UI = False  # Usa la UI classica MODERNIZZATA
+
+if USE_MODERN_UI:
+    try:
+        from .gui.modern_control_panel import ModernStreamBlurPanel as ControlPanel
+    except ImportError:
+        from gui.modern_control_panel import ModernStreamBlurPanel as ControlPanel
+else:
+    try:
+        from .gui.control_panel import StreamBlurControlPanel as ControlPanel
+    except ImportError:
+        from gui.control_panel import StreamBlurControlPanel as ControlPanel
 
 class StreamBlurProApp:
     """Applicazione principale StreamBlur Pro"""
@@ -48,7 +72,7 @@ class StreamBlurProApp:
         self.virtual_camera = VirtualCameraManager(self.config, self.performance)
         
         # GUI
-        self.gui: Optional[StreamBlurControlPanel] = None
+        self.gui: Optional[ControlPanel] = None
         
         # Processing state
         self.is_processing = False
@@ -262,7 +286,9 @@ class StreamBlurProApp:
     
     def run_gui(self):
         """Avvia con interfaccia grafica"""
-        self.gui = StreamBlurControlPanel(self)
+        """Avvia GUI"""
+        print("🖥️ Avvio interfaccia grafica...")
+        self.gui = ControlPanel(self)
         self.gui.run()
     
     def run_cli(self):

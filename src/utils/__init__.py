@@ -7,8 +7,13 @@ StreamBlur Pro - Utilities
 Contiene moduli di utilità per configurazione e performance
 """
 
-from .config import StreamBlurConfig
-from .performance import PerformanceMonitor
+# Import compatibili sia per esecuzione diretta che come modulo
+try:
+    from .config import StreamBlurConfig
+    from .performance import PerformanceMonitor
+except ImportError:
+    from config import StreamBlurConfig
+    from performance import PerformanceMonitor
 
 __all__ = [
     'StreamBlurConfig',

@@ -7,7 +7,11 @@ StreamBlur Pro - GUI Modules
 Contiene moduli per l'interfaccia grafica utente
 """
 
-from .control_panel import StreamBlurControlPanel
+# Import compatibili sia per esecuzione diretta che come modulo
+try:
+    from .control_panel import StreamBlurControlPanel
+except ImportError:
+    from control_panel import StreamBlurControlPanel
 
 __all__ = [
     'StreamBlurControlPanel'
